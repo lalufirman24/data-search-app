@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Search App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .upload-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .file-input-label:hover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+        }
+
+        .file-input-label.dragover {
+            background: #e8eeff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .search-section.active {
+            display: block;
+        }
+
+        .search-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        . search-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        . search-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .search-group input,
+        .search-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-group input:focus,
+        . search-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        . btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-reset {
+            background: #e9ecef;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-reset:hover {
+            background: #dee2e6;
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .results-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .results-info strong {
+            color: #333;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+            color: #666;
+        }
+
+        table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .search-container {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            table th, table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Data Search App</h1>
+            <p>Upload file dan cari data dengan mudah</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <label class="file-input-label" id="fileLabel" for="fileInput">
+                    <div style="text-align: center;">
+                        <p style="font-size: 24px; margin-bottom: 10px;">📁</p>
+                        <p style="font-weight: 600; color: #333;">Drag & drop file CSV atau Excel di sini</p>
+                        <p style="font-size: 12px; color: #999;">atau klik untuk memilih file</p>
+                    </div>
+                </label>
+                <input type="file" id="fileInput" accept=".csv,.xlsx,. xls">
+            </div>
+        </div>
+
+        <div class="search-section" id="searchSection">
+            <div class="search-container">
+                <div class="search-group">
+                    <label for="searchInput">Cari Data:</label>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Ketik kata kunci..."
+                    >
+                </div>
+                <div class="search-group">
+                    <label for="columnSelect">Kolom:</label>
+                    <select id="columnSelect">
+                        <option value="">-- Semua Kolom --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-search" onclick="searchData()">Cari</button>
+                <button class="btn-reset" onclick="resetSearch()">Reset</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-info" id="resultsInfo" style="display: none;">
+                Ditemukan <strong id="resultCount">0</strong> data
+            </div>
+
+            <div class="table-responsive" id="tableContainer">
+                <p style="text-align: center; color: #999; padding: 40px;">
+                    Upload file CSV atau Excel untuk memulai
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app-alternative.js"></script>
+</body>
+</html>
